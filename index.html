@@ -167,6 +167,7 @@
       font-size: 0.8rem;
       margin-top: 10px;
       min-height: 1rem;
+      color: #d33;
     }
 
     .key-box {
@@ -196,7 +197,6 @@
       background: #eaecf0;
     }
 
-    /* Vollbild-Bereich für die Apps / Spiele */
     #app-container {
       display: none;
       position: fixed;
@@ -204,7 +204,7 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: white;
+      background: #ffffff;
       z-index: 9999;
     }
 
@@ -270,7 +270,7 @@
   <div id="view-getkey" class="view">
     <div class="portal-box">
       <h1>Key Generator</h1>
-      <p>Werbung wurde im neuen Tab geöffnet. Ihr gerätegebundener Schlüssel:</p>
+      <p>Werbung im neuen Tab geöffnet. Ihr Key für dieses Gerät:</p>
 
       <div id="generated-key-display" class="key-box">Lade...</div>
 
@@ -279,23 +279,24 @@
     <button class="exit-btn" onclick="returnToCalculator()">Zurück</button>
   </div>
 
-  <!-- VIEW 4: AUSWAHL-MENÜ (NEU NACH ERFOLGREICHEM UNLOCK) -->
+  <!-- VIEW 4: AUSWAHL-MENÜ (OHNE POKI/CRAZYGAMES, MIT UNBLOCKED GAMES HUB) -->
   <div id="view-dashboard" class="view">
     <div class="portal-box">
       <h1>Portal Hub</h1>
-      <p>Wähle aus, was du öffnen möchtest:</p>
+      <p>Wähle eine Ansicht:</p>
 
-      <button class="btn" onclick="openApp('https://mathkit.org')">MathKit (Standard)</button>
-      <button class="btn" onclick="openApp('https://www.crazygames.com')">Crazy Games</button>
-      <button class="btn" onclick="openApp('https://poki.com')">Poki Games</button>
+      <button class="btn" onclick="openApp('https://mathkit.org')">MathKit</button>
+      <!-- Unblocked Games Hub integriert -->
+      <button class="btn" onclick="openApp('https://unblockedgames.ee/')">Unblocked Games Hub</button>
+      <button class="btn" onclick="openApp('about:blank')">Leere Seite (Blank)</button>
     </div>
-    <button class="exit-btn" onclick="returnToCalculator()">Zurück zum Rechner</button>
+    <button class="exit-btn" onclick="returnToCalculator()">Zum Rechner</button>
   </div>
 
-  <!-- EMBEDDED APP / GAME CONTAINER -->
+  <!-- APP CONTAINER -->
   <div id="app-container">
-    <iframe id="app-frame" title="Portal App"></iframe>
-    <button class="exit-btn" onclick="showView('view-dashboard')">Zurück zum Menü</button>
+    <iframe id="app-frame" title="App View"></iframe>
+    <button class="exit-btn" onclick="showView('view-dashboard')">Menü</button>
   </div>
 
   <script>
@@ -355,7 +356,6 @@
     }
 
     function triggerAdAndGetKey() {
-      // HilltopAds Pop-under Link öffnet sich im neuen Tab
       window.open('https://hilltopads.com', '_blank');
       showView('view-getkey');
       generateAndDisplayKey();
@@ -421,13 +421,12 @@
       messageField.innerText = '';
 
       if (validateKey(key)) {
-        messageField.innerText = 'OK. Lade Auswahl...';
+        messageField.innerText = 'Erfolgreich!';
         setTimeout(() => {
-          // Nach erfolgreichem Unlock öffnet sich nun das Auswahl-Menü (Dashboard)
           showView('view-dashboard');
-        }, 400);
+        }, 300);
       } else {
-        messageField.innerText = 'Ungültig.';
+        messageField.innerText = 'Falscher Key für dieses Gerät.';
       }
     }
 
@@ -437,7 +436,7 @@
         navigator.clipboard.writeText(keyText).then(() => {
           showView('view-unlock');
           document.getElementById('key-input').value = keyText;
-          document.getElementById('unlock-message').innerText = 'Schlüssel kopiert & eingefügt! Drücke Unlock.';
+          document.getElementById('unlock-message').innerText = 'Eingefügt! Klicke Unlock.';
         });
       } else {
         showView('view-unlock');
@@ -445,7 +444,6 @@
       }
     }
 
-    // Funktion zum Öffnen der ausgewählten Plattform im Vollbild-Rahmen
     function openApp(url) {
       document.getElementById('app-frame').src = url;
       showView('app-container');
