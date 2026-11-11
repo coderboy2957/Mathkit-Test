@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator - Wikipedia</title>
+  
+  <!-- HILLTOPADS META-TAG -->
+  <meta name="ae77880e3698a927ab890f53597c22c2d3ab1935" content="ae77880e3698a927ab890f53597c22c2d3ab1935" />
+
+  <style>
+    body {
+      background: #ffffff;
+      color: #000000;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .wiki-header {
+      width: 100%;
+      max-width: 400px;
+      border-bottom: 1px solid #a2a9b1;
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+      text-align: left;
+    }
+
+    .wiki-title {
+      font-family: "Linux Libertine", Georgia, Times, serif;
+      font-size: 1.8rem;
+      font-weight: normal;
+      margin: 0 0 5px 0;
+      color: #000;
+    }
+
+    .wiki-subtitle {
+      font-size: 0.8rem;
+      color: #54595d;
+      margin: 0;
+    }
+
+    .view {
+      display: none;
+      width: 100%;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: #ffffff;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .view.active {
+      display: flex;
+    }
+
+    .calc-container {
+      border: 1px solid #a2a9b1;
+      padding: 15px;
+      width: 260px;
+      background: #f8f9fa;
+    }
+
+    .calc-screen {
+      width: 100%;
+      height: 35px;
+      background: #fff;
+      border: 1px solid #a2a9b1;
+      font-size: 1.1rem;
+      text-align: right;
+      padding: 5px 8px;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+      font-family: monospace;
+    }
+
+    .calc-keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+    }
+
+    .calc-btn {
+      padding: 12px;
+      background: #fff;
+      border: 1px solid #a2a9b1;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-family: monospace;
+    }
+
+    .calc-btn:active {
+      background: #eaecf0;
+    }
+
+    .portal-box {
+      border: 1px solid #a2a9b1;
+      padding: 25px;
+      width: 320px;
+      text-align: left;
+      background: #f8f9fa;
+    }
+
+    h1 {
+      font-family: "Linux Libertine", Georgia, Times, serif;
+      font-size: 1.3rem;
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-weight: normal;
+      border-bottom: 1px solid #a2a9b1;
+      padding-bottom: 5px;
+    }
+
+    p {
+      font-size: 0.85rem;
+      margin-bottom: 15px;
+      line-height: 1.4;
+      color: #202122;
+    }
+
+    label {
+      font-size: 0.80rem;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #a2a9b1;
+      font-family: monospace;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+      background: #fff;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 8px;
+      background: #f8f9fa;
+      border: 1px solid #a2a9b1;
+      text-align: center;
+      text-decoration: none;
+      color: #202122;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-bottom: 8px;
+      box-sizing: border-box;
+    }
+
+    .btn:hover {
+      background: #eaecf0;
+    }
+
+    .message {
+      font-size: 0.8rem;
+      margin-top: 10px;
+      min-height: 1rem;
+    }
+
+    .key-box {
+      border: 1px dashed #a2a9b1;
+      padding: 8px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      margin-bottom: 15px;
+      word-break: break-all;
+      text-align: center;
+      background: #fff;
+    }
+
+    .exit-btn {
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
+      background: #f8f9fa;
+      border: 1px solid #a2a9b1;
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      z-index: 10000;
+      font-family: sans-serif;
+    }
+    .exit-btn:hover {
+      background: #eaecf0;
+    }
+
+    /* Vollbild-Bereich für die Apps / Spiele */
+    #app-container {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: white;
+      z-index: 9999;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- VIEW 1: TASCHENRECHNER -->
+  <div id="view-calculator" class="view active" style="position: relative; height: auto; justify-content: flex-start;">
+    <div class="wiki-header">
+      <h1 class="wiki-title">Calculator</h1>
+      <p class="wiki-subtitle">From Wikipedia, the free encyclopedia</p>
+    </div>
+
+    <div class="calc-container">
+      <div id="calc-screen" class="calc-screen">0</div>
+      <div class="calc-keys">
+        <button class="calc-btn" onclick="calcClear()">C</button>
+        <button class="calc-btn" onclick="calcAppend('/')">/</button>
+        <button class="calc-btn" onclick="calcAppend('*')">*</button>
+        <button class="calc-btn" onclick="calcAppend('-')">-</button>
+        <button class="calc-btn" onclick="calcAppend('7')">7</button>
+        <button class="calc-btn" onclick="calcAppend('8')">8</button>
+        <button class="calc-btn" onclick="calcAppend('9')">9</button>
+        <button class="calc-btn" onclick="calcAppend('+')">+</button>
+        <button class="calc-btn" onclick="calcAppend('4')">4</button>
+        <button class="calc-btn" onclick="calcAppend('5')">5</button>
+        <button class="calc-btn" onclick="calcAppend('6')">6</button>
+        <button class="calc-btn" onclick="calcCompute()">=</button>
+        <button class="calc-btn" onclick="calcAppend('1')">1</button>
+        <button class="calc-btn" onclick="calcAppend('2')">2</button>
+        <button class="calc-btn" onclick="calcAppend('3')">3</button>
+        <button class="calc-btn" style="visibility:hidden;"></button>
+        <button class="calc-btn" style="grid-column: span 2;" onclick="calcAppend('0')">0</button>
+        <button class="calc-btn" onclick="calcAppend('.')">.</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 2: UNLOCK SCREEN -->
+  <div id="view-unlock" class="view">
+    <div class="portal-box">
+      <h1>Access Control</h1>
+      <p>Bitte geben Sie den gültigen Zugangsschlüssel ein:</p>
+      
+      <label for="key-input">Key:</label>
+      <input type="text" id="key-input" placeholder="MK-..." autocomplete="off">
+
+      <button class="btn" onclick="unlockWithKey()">Unlock</button>
+      <button class="btn" onclick="triggerAdAndGetKey()">Get Key</button>
+
+      <div id="unlock-message" class="message"></div>
+    </div>
+    <button class="exit-btn" onclick="returnToCalculator()">Zurück</button>
+  </div>
+
+  <!-- VIEW 3: GET KEY SCREEN -->
+  <div id="view-getkey" class="view">
+    <div class="portal-box">
+      <h1>Key Generator</h1>
+      <p>Werbung wurde im neuen Tab geöffnet. Ihr gerätegebundener Schlüssel:</p>
+
+      <div id="generated-key-display" class="key-box">Lade...</div>
+
+      <button class="btn" onclick="copyAndUseKeyDirectly()">Key kopieren & Starten</button>
+    </div>
+    <button class="exit-btn" onclick="returnToCalculator()">Zurück</button>
+  </div>
+
+  <!-- VIEW 4: AUSWAHL-MENÜ (NEU NACH ERFOLGREICHEM UNLOCK) -->
+  <div id="view-dashboard" class="view">
+    <div class="portal-box">
+      <h1>Portal Hub</h1>
+      <p>Wähle aus, was du öffnen möchtest:</p>
+
+      <button class="btn" onclick="openApp('https://mathkit.org')">MathKit (Standard)</button>
+      <button class="btn" onclick="openApp('https://www.crazygames.com')">Crazy Games</button>
+      <button class="btn" onclick="openApp('https://poki.com')">Poki Games</button>
+    </div>
+    <button class="exit-btn" onclick="returnToCalculator()">Zurück zum Rechner</button>
+  </div>
+
+  <!-- EMBEDDED APP / GAME CONTAINER -->
+  <div id="app-container">
+    <iframe id="app-frame" title="Portal App"></iframe>
+    <button class="exit-btn" onclick="showView('view-dashboard')">Zurück zum Menü</button>
+  </div>
+
+  <script>
+    const KEY_PREFIX = "MK-";
+    const SECRET_SALT = "MATHKIT_DEVICE_LOCK_2026";
+
+    let calcInput = "0";
+
+    function updateCalcScreen() {
+      document.getElementById('calc-screen').innerText = calcInput;
+    }
+
+    function calcAppend(val) {
+      if (calcInput === "0" && val !== '.') {
+        calcInput = val;
+      } else {
+        calcInput += val;
+      }
+      updateCalcScreen();
+    }
+
+    function calcClear() {
+      calcInput = "0";
+      updateCalcScreen();
+    }
+
+    function calcCompute() {
+      if (calcInput === "1234") {
+        calcClear();
+        showView('view-unlock');
+        return;
+      }
+
+      try {
+        let result = Function('"use strict";return (' + calcInput + ')')();
+        calcInput = String(result);
+      } catch (e) {
+        calcInput = "Error";
+      }
+      updateCalcScreen();
+    }
+
+    function showView(viewId) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById('app-container').style.display = 'none';
+      
+      if (viewId === 'app-container') {
+        document.getElementById('app-container').style.display = 'block';
+      } else {
+        document.getElementById(viewId).classList.add('active');
+      }
+    }
+
+    function returnToCalculator() {
+      calcClear();
+      showView('view-calculator');
+    }
+
+    function triggerAdAndGetKey() {
+      // HilltopAds Pop-under Link öffnet sich im neuen Tab
+      window.open('https://hilltopads.com', '_blank');
+      showView('view-getkey');
+      generateAndDisplayKey();
+    }
+
+    function getDeviceFingerprint() {
+      const nav = window.navigator;
+      const screen = window.screen;
+      const rawString = [
+        nav.userAgent,
+        nav.language,
+        screen.width,
+        screen.height,
+        screen.colorDepth,
+        new Date().getTimezoneOffset()
+      ].join('|');
+      
+      return simpleHash(rawString);
+    }
+
+    function simpleHash(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = (hash << 5) - hash + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return Math.abs(hash).toString(36).toUpperCase();
+    }
+
+    function generateKeyForTimestamp(timestamp, deviceHash) {
+      const timeBlock = Math.floor(timestamp / (1000 * 60 * 60));
+      const signature = simpleHash(timeBlock + deviceHash + SECRET_SALT);
+      return `${KEY_PREFIX}${timeBlock.toString(36).toUpperCase()}-${deviceHash}-${signature}`;
+    }
+
+    function generateAndDisplayKey() {
+      const now = Date.now();
+      const deviceHash = getDeviceFingerprint();
+      const currentKey = generateKeyForTimestamp(now, deviceHash);
+      document.getElementById('generated-key-display').innerText = currentKey;
+    }
+
+    function validateKey(key) {
+      if (!key || typeof key !== 'string') return false;
+      const cleanKey = key.trim();
+      const now = Date.now();
+      const deviceHash = getDeviceFingerprint();
+      
+      for (let i = 0; i <= 24; i++) {
+        const testTime = now - (i * 60 * 60 * 1000);
+        if (generateKeyForTimestamp(testTime, deviceHash) === cleanKey) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function unlockWithKey() {
+      const inputField = document.getElementById('key-input');
+      const messageField = document.getElementById('unlock-message');
+      const key = inputField.value;
+
+      messageField.innerText = '';
+
+      if (validateKey(key)) {
+        messageField.innerText = 'OK. Lade Auswahl...';
+        setTimeout(() => {
+          // Nach erfolgreichem Unlock öffnet sich nun das Auswahl-Menü (Dashboard)
+          showView('view-dashboard');
+        }, 400);
+      } else {
+        messageField.innerText = 'Ungültig.';
+      }
+    }
+
+    function copyAndUseKeyDirectly() {
+      const keyText = document.getElementById('generated-key-display').innerText;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(keyText).then(() => {
+          showView('view-unlock');
+          document.getElementById('key-input').value = keyText;
+          document.getElementById('unlock-message').innerText = 'Schlüssel kopiert & eingefügt! Drücke Unlock.';
+        });
+      } else {
+        showView('view-unlock');
+        document.getElementById('key-input').value = keyText;
+      }
+    }
+
+    // Funktion zum Öffnen der ausgewählten Plattform im Vollbild-Rahmen
+    function openApp(url) {
+      document.getElementById('app-frame').src = url;
+      showView('app-container');
+    }
+  </script>
+</body>
+</html>
